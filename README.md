@@ -20,6 +20,4 @@ The model predicts a relative variation of the fine-structure constant $\Delta \
 
 ## 🛠️ Usage
 1. Clone the repository.
-2. Run the simulation script:
-   ```bash
-   python code/wang_alpha_fit.py
+2. Run the notebook: chaos1.ipynb
