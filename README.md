@@ -3,7 +3,7 @@
 # Cosmological Evolution as a Non-autonomous Chaotic System
 ### Linking Riemann Zeta Zeros to the Time Variation of Fine-Structure Constant
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXX)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXX.svg)](https://doi.org/10.5281/zenodo.18457495)
 **Author:** Dr. Wang (HUST)  
 **Status:** Pre-print / Active Research
 
