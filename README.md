@@ -15,7 +15,7 @@ We propose that the universe evolves as a non-autonomous logistic map with a con
 ## 📈 Key Result
 The model predicts a relative variation of the fine-structure constant $\Delta \alpha / \alpha \propto 1/\ln(t)$, which shows remarkable agreement with quasar absorption line data observed by Webb et al.
 
-![Model Fit](Wang_Alpha_Fit.png)
+![Model Fit](Wang_Alpha_Fit_Final.png)
 *Fig 1. Theoretical prediction (Red Line) vs. Observational Data from VLT/Keck (Black Dots).*
 
 ## 🛠️ Usage
