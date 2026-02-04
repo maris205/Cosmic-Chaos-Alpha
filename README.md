@@ -20,4 +20,4 @@ The model predicts a relative variation of the fine-structure constant $\Delta \
 
 ## 🛠️ Usage
 1. Clone the repository.
-2. Run the notebook: chaos1.ipynb
+2. Run the notebook: chaos3.ipynb
