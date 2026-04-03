@@ -1,0 +1,11 @@
+{
+  "entropy_total_nats": 4.4593071510472936e+58,
+  "entropy_total_bits": 6.433420312616623e+58,
+  "T_eff_now_K": 8.990093064129246e+27,
+  "correlation_length_m": 2.546804979298232e-31,
+  "decoherence_time_s": 9.763848626075104e-42,
+  "action_total_Js": 6.787258429810536e+24,
+  "action_total_hbar": 6.433420312616621e+58,
+  "H_derived_naive_kmsMpc": 1.0452579766933122e+56,
+  "conclusion": "Can derive scaling laws and functional forms, but not absolute values without cosmological input"
+}

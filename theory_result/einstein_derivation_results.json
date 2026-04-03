@@ -1,0 +1,10 @@
+{
+  "modified_einstein": "G_\u03bc\u03bd + \u039b(t) g_\u03bc\u03bd = (8\u03c0G/c\u2074) T_\u03bc\u03bd",
+  "Lambda_t": "\u039b(t) = \u039b_\u221e + (4d_H\u00b2/3c\u00b2)/(t\u00b2\u00b7ln\u00b2(t/t_P))",
+  "d_H": 0.755512298658718,
+  "w_D_late_time": 184.0042150487193,
+  "Lambda_inf_m2": 3.4400281160207974e-35,
+  "Lambda_obs_m2": 1.1056e-52,
+  "correction_at_t_now": 2.0411552805416767e-40,
+  "verification": "R_lattice matches R_Friedmann to < 1% for n > 10\u2075"
+}

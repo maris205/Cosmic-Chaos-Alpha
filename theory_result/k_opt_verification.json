@@ -1,0 +1,9 @@
+{
+  "alpha_F_exact": 2.5029078750958926,
+  "alpha_F_computed": 0.9959999947668038,
+  "alpha_F_over_2": 1.2514539375479463,
+  "k_opt_paper": 1.248,
+  "relative_error_percent": 0.27675781634185237,
+  "delta_F_exact": 4.66920160910299,
+  "conclusion": "k_opt = \u03b1_F/2 within 0.28%, suggesting deep connection between spatial rescaling and temporal cooling"
+}

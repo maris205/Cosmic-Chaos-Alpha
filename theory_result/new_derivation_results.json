@@ -1,0 +1,14 @@
+{
+  "d_H_feigenbaum": 0.755512298658718,
+  "Omega_Lambda_obs": 0.685,
+  "two_point_fit": {
+    "H_inf": 106.28079151135236,
+    "beta": -654440.4295865705,
+    "H0_predicted": 73.00708345032386
+  },
+  "k_opt_relation": {
+    "alpha_F_over_2": 1.251453937547946,
+    "k_opt_paper": 1.248,
+    "relative_error_percent": 0.2767578163418346
+  }
+}

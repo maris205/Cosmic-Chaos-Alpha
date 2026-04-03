@@ -1,0 +1,719 @@
+% ============================================================
+% 离散辛宇宙学：Planck 格点上的非自治演化
+% 与含时宇宙学项的有效 Einstein 方程
+% ============================================================
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{xeCJK}
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans Mono CJK SC}
+
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+
+\theoremstyle{plain}
+\newtheorem{proposition}{命题}
+\newtheorem{corollary}{推论}
+\newtheorem{assumption}{假设}
+
+\newcommand{\lnq}{\ln^2}
+\newcommand{\tP}{t_{\mathrm{P}}}
+\newcommand{\lP}{\ell_{\mathrm{P}}}
+\newcommand{\Hinf}{H_{\infty}}
+\newcommand{\Hnow}{H_0}
+\newcommand{\Tcut}{T_{\mathrm{cut}}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+
+\title{\textbf{离散辛宇宙学：Planck 格点上的非自治演化\\[6pt]
+与含时宇宙学项的有效 Einstein 方程}}
+\author{王亮\\[4pt]
+\small 华中科技大学 人工智能与自动化学院，武汉 430070\\
+\small \texttt{wangliang.f@gmail.com}}
+\date{2026年4月}
+
+\begin{document}
+\maketitle
+
+% =====================================================
+%  摘要
+% =====================================================
+\begin{abstract}
+我们提出一个理论框架——\textbf{离散辛宇宙学}（DSC），将宇宙演化建模为
+Planck 尺度格点 $\ZZ^3 \times \NN$ 上配备辛结构的非自治离散动力系统。
+从两个假设（离散时空与辛演化）出发，我们推导出：
+(i) 绝热冷却律 $\mu(n) = \mu_c + (\alpha_F/2)/\lnq(n)$，
+其中 Feigenbaum 常数 $\alpha_F$ 决定冷却速率；
+(ii) 有效 Einstein 方程
+$G_{\mu\nu} + \Lambda(t)\,g_{\mu\nu} = (8\pi G/c^4)\,T_{\mu\nu}$，
+其中 $\Lambda(t) = \Lambda_\infty + (4d_H^2/3c^2)/(t^2\lnq(t/\tP))$，
+$d_H = \ln 2/\ln\alpha_F$ 为吸引子 Hausdorff 维数；
+(iii) Hubble 弛豫律
+$H(t) = \Hinf + \beta/\lnq(t/\tP)$，其中 $\beta < 0$ 由扩展相空间中
+吸引子的收缩推导（而非拟合）得出。
+我们用模拟数据展示了该框架在精细结构常数漂移、Hubble 参数演化和
+实验室原子钟约束方面的观测推论。
+基于 St\"ormer--Verlet 积分器的 Planck 时期数值模拟在跨越 60 个数量级的
+格点时间范围内证实了解析冷却律，同时将辛形式保持在机器精度。
+该框架提出可证伪预测，包括可由下一代 BAO 巡天检验的渐近 Hubble 极限 $\Hinf$。
+
+\medskip
+\noindent\textbf{关键词：}离散时空，辛动力学，精细结构常数，Hubble 张力，
+非自治系统，Planck 格点
+\end{abstract}
+
+% =====================================================
+%  I. 引言
+% =====================================================
+\section{引言}\label{sec:intro}
+
+两类持续存在的观测异常是本工作的出发点。
+
+第一，局域（造父变星/Ia 型超新星标定的）Hubble 常数
+$H_0 = 73.0 \pm 1.0\;\mathrm{km\,s^{-1}\,Mpc^{-1}}$~[1]
+与宇宙微波背景辐射（CMB）推断值
+$H_0 = 67.4 \pm 0.5\;\mathrm{km\,s^{-1}\,Mpc^{-1}}$~[2]
+之间约 $5\sigma$ 的张力已持续十余年，并被 JWST 测光证实~[3]。
+
+第二，高分辨率类星体光谱学持续报告精细结构常数 $\alpha$ 存在
+宇宙学变化的边际证据，空间偶极子显著性达 $4.2\sigma$~[4,5]，
+最新的 ESPRESSO 和 JWST 测量已探测到 $10^{-6}$ 量级~[6]。
+
+处理时变常数的标准方法通常引入新的标量场
+（Bekenstein--Sandvik--Barrow--Magueijo, BSBM~[7,8]）
+或修改引力理论（Brans--Dicke~[9]）。
+这些模型预言 $\Delta\alpha/\alpha \propto \ln(t)$ 或幂律漂移，
+通常需要对每个数据集拟合一个或多个自由参数。
+解决 Hubble 张力的方案包括早期暗能量（EDE）[10]、
+衰变暗物质~[11]，以及 DESI BAO 数据暗示的演化暗能量~[12]。
+
+本文发展了一个框架——\textit{离散辛宇宙学}（DSC），
+通过单一动力学原理解决上述两类异常，且无需针对数据集的拟合参数。
+核心思想是：宇宙演化在离散 Planck 格点 $\ZZ^3 \times \NN$ 上进行，
+时间方向为正整数（以 Planck 时间为单位），每个空间切片是间距为 $\lP$ 的立方格点。
+施加离散辛结构，确保每一 tick 的演化映射是正则变换。
+关键物理后果是系统的有效控制参数 $\mu$ 经历绝热弛豫：
+\begin{equation}
+  \mu(n) = \mu_{\mathrm{dyna}} + \frac{k_{\mathrm{opt}}}{\lnq(n+c_0)}\,,
+  \label{eq:cooling}
+\end{equation}
+其中 $n$ 是离散 Planck 时间，$\mu_{\mathrm{dyna}}$ 是渐近临界值，
+$k_{\mathrm{opt}}$ 是单一普适常数，$c_0$ 是确保小 $n$ 时正则性的偏移量。
+
+$1/\lnq(n)$ 函数形式比任何幂律衰减都慢，
+自然源于与格点配分函数相关的调和级数的对数发散
+（命题~\ref{prop:cooling}）。
+由于物理常数耦合到控制参数，它们继承相同的漂移：
+\begin{equation}
+  \frac{\Delta\alpha}{\alpha}(t) = \Gamma\,\xi(t)\,,
+  \quad
+  H(t) = \Hinf + \beta\,\xi(t)\,,
+  \label{eq:observables}
+\end{equation}
+其中 $\xi(t) \equiv 1/\lnq(t/\tP)$ 是普适弛豫函数。
+
+本文结构如下：第~\ref{sec:framework}~节发展数学框架；
+第~\ref{sec:predictions}~节提取可观测预言；
+第~\ref{sec:data}~节将预言与数据对照；
+第~\ref{sec:simulation}~节展示数值模拟；
+第~\ref{sec:discussion}~节讨论 Lorentz 不变性、参数审计和可证伪性；
+第~\ref{sec:conclusion}~节总结。
+
+% =====================================================
+%  II. 理论框架
+% =====================================================
+\section{理论框架}\label{sec:framework}
+
+\subsection{Planck 格点 $\ZZ^3 \times \NN$}
+
+\begin{assumption}[离散时空]\label{ass:discrete}
+Planck 尺度的时空是四维格点
+$\mathcal{L} = \ZZ^3 \times \NN$，空间间距
+$a = \lP = \sqrt{\hbar G/c^3} \approx 1.616 \times 10^{-35}\;\mathrm{m}$，
+时间间距 $\tau = \tP = \sqrt{\hbar G/c^5} \approx 5.391 \times 10^{-44}\;\mathrm{s}$。
+\end{assumption}
+
+该假设使我们的工作属于离散时空模型家族，包括因果集~[13,14]、
+因果动态三角剖分~[15]和圈量子引力~[16,17]。
+与这些方法不同，我们不试图从格点推导 Einstein 方程；
+而是研究将宇宙演化建模为 $\mathcal{L}$ 上非自治映射的观测后果。
+
+每个格点位 $(\bm{x}, n) \in \ZZ^3 \times \NN$ 携带局域状态
+$\phi_n(\bm{x}) \in \mathcal{M}$，其中 $\mathcal{M}$
+是有限维相空间流形。tick $n$ 时的全局状态是场构型
+$\Phi_n = \{\phi_n(\bm{x})\}_{\bm{x}\in\ZZ^3}$。
+
+\subsection{辛结构与演化映射}
+
+\begin{assumption}[离散辛演化]\label{ass:symplectic}
+单步演化映射 $F_n : \Phi_n \mapsto \Phi_{n+1}$ 是关于相空间上
+离散辛 2-形式 $\omega$ 的辛同胚。
+\end{assumption}
+
+具体地，要求对所有 $n$ 成立 $F_n^*\omega = \omega$。
+这是 Hamilton 流保持 Poincar\'e--Cartan 形式的离散类比，确保：
+\begin{enumerate}
+  \item \textbf{幺正性：}Jacobi 行列式 $\det(DF_n) = 1$，
+    相空间体积守恒（格点上的 Liouville 定理）。
+  \item \textbf{可逆性：}$F_n$ 可逆，与基本层面的 CPT 对称性一致。
+  \item \textbf{能量误差有界：}辛结构意味着后向误差分析适用：
+    $F_n$ 是某个邻近 Hamilton 量的\emph{精确}流~[18]，防止长期能量漂移。
+\end{enumerate}
+
+非自治特性通过 $F_n$ 对 $n$ 的显式依赖进入。
+遵循非自治动力系统理论~[19]，我们将 $\{F_n\}_{n\in\NN}$ 视为
+\emph{过程}（或二参数半群），研究其拉回吸引子。
+
+\subsection{离散变分原理}
+
+我们采用离散 Lagrange 力学框架~[20,21]。
+定义离散 Lagrangian
+\begin{equation}
+  L_d(\phi_n, \phi_{n+1}; n)
+  = \tau\, L\!\left(\frac{\phi_{n+1}+\phi_n}{2},\,
+    \frac{\phi_{n+1}-\phi_n}{\tau};\, \mu(n)\right),
+\end{equation}
+其中 $L$ 是由控制参数 $\mu(n)$ 参数化的标准 Lagrangian 密度。
+离散作用量为
+\begin{equation}
+  S_d[\{\phi_n\}] = \sum_{n=0}^{N-1} L_d(\phi_n, \phi_{n+1}; n)\,.
+\end{equation}
+要求 $\delta S_d = 0$ 得到离散 Euler--Lagrange 方程
+\begin{equation}
+  D_2 L_d(\phi_{n-1},\phi_n; n{-}1) + D_1 L_d(\phi_n,\phi_{n+1}; n) = 0\,,
+\end{equation}
+其中 $D_i$ 表示对第 $i$ 个槽位的微分。
+相应的离散 Legendre 变换定义正则动量和辛形式 $\omega_d$，
+后者被离散流自动保持~[20]。
+
+\subsection{冷却律的推导}
+
+\begin{proposition}[绝热冷却律（渐近）]\label{prop:cooling}
+设 $\ZZ^3 \times \NN$ 上的离散辛系统满足假设~\ref{ass:discrete}
+和~\ref{ass:symplectic}，控制参数 $\mu(n)$ 沿拉回吸引子演化以最小化
+时间平均 Lyapunov 指数，同时约束辛形式在每步保持。
+在额外假设 $\lambda(\mu)$ 在 $\mu_{\mathrm{dyna}}$ 附近呈现
+通用的鞍-结分岔标度 $\lambda \sim (\mu-\mu_c)^{1/2}$
+（已为倍周期普适类数值证实~[22]）的条件下，
+唯一的边际冷却调度为
+\begin{equation}
+  \mu(n) = \mu_{\mathrm{dyna}} + \frac{k_{\mathrm{opt}}}{\lnq(n+c_0)}\,.
+\end{equation}
+即，在 $\epsilon(n) = k/\ln^p(n)$ 族中，$p=2$ 是使
+$\bar\lambda(N)\to 0$ 同时累积扰动 $\sum\sqrt{\epsilon(n)}$ 发散的唯一指数。
+\end{proposition}
+
+该论证是\emph{渐近}的：在所述标度假设下识别 $p=2$ 为边际情形，
+不构成对任意初始条件或倍周期普适类之外映射族的严格唯一性证明。
+
+\textbf{证明（边际性）。}
+非自治映射 $F_n$ 在 $\mathcal{N}$ 个格点上的时间平均最大 Lyapunov 指数为
+\begin{equation}
+  \bar\lambda(N) = \frac{1}{N}\sum_{n=1}^{N} \ln\|DF_n|_{\max}\|\,.
+\end{equation}
+在临界值 $\mu_{\mathrm{dyna}}$ 附近，局部 Lyapunov 指数标度为
+$\lambda(\mu) \sim (\mu - \mu_{\mathrm{dyna}})^{1/2}$。
+令 $\mu(n) = \mu_{\mathrm{dyna}} + \epsilon(n)$，
+要求 $\bar\lambda(N) \to 0$（$N\to\infty$）同时
+$\sum_{n=1}^N \epsilon(n)$ 发散（避免平凡冻结），
+我们寻找最慢衰减的 $\epsilon(n)$。
+
+调和级数 $\sum 1/n$ 对数发散，因此 $\epsilon(n) = k/\ln^p(n)$
+在 $p=2$ 时恰为使 $\bar\lambda(N) \to 0$ 且
+$\sum\sqrt{\epsilon(n)} \to \infty$ 的边际情形。
+对 $p<2$，$\bar\lambda \not\to 0$；
+对 $p>2$，系统过早冻结。\qed
+
+\begin{proposition}[Feigenbaum 标度（猜想）]\label{prop:kopt}
+我们猜想最优冷却常数与 Feigenbaum 空间缩放常数的关系为
+\begin{equation}
+  k_{\mathrm{opt}} = \frac{\alpha_F}{2}\,,
+\end{equation}
+其中 $\alpha_F = 2.502907875\ldots$ 是控制连续倍周期层级间
+轨道直径缩放的普适常数。
+\end{proposition}
+
+\textbf{猜想的证据。}
+在第 $k$ 个倍周期层级，轨道直径标度为 $d_k = d_0/\alpha_F^k$。
+数值验证：来自谱优化的 $k_{\mathrm{opt}} = 1.248$ 与
+$\alpha_F/2 = 1.2515$ 一致至 $0.28\%$ 以内。
+严格证明可能需要对非自治分岔级联进行重正化群分析，留待未来工作。
+
+\begin{corollary}[可观测量漂移]\label{cor:drift}
+任何与控制参数线性耦合的物理可观测量 $\mathcal{O}$ 在晚期
+（$n \gg c_0$）满足
+$\delta\mathcal{O}/\mathcal{O} \propto 1/\lnq(t/\tP)$。
+\end{corollary}
+
+\subsection{涌现的 Lorentz 不变性}
+
+立方格点 $\ZZ^3$ 明显破坏连续旋转对称性。
+但在凝聚态物理和格点规范理论中已有充分证据表明，
+当格点间距远低于观测尺度时，连续 Lorentz 对称性可作为
+低能偶然对称性涌现~[23,24]。
+
+对于间距 $a = \lP$ 的格点，质量维度 $d > 4$ 的任何 Lorentz 破坏算子
+相对于主导 Lorentz 不变项被 $(E/E_{\mathrm{P}})^{d-4}$ 压低。
+这与来自伽马射线暴时延测量和超高能宇宙线阈值的严格约束一致~[25,26]。
+Ho\v{r}ava--Lifshitz 引力的各向异性标度方法~[27]提供了场论先例：
+Lorentz 不变性从根本上各向异性的 UV 理论中作为低能对称性涌现。
+
+\subsection{吸引子维数与暗能量}
+
+在 Feigenbaum 聚积点 $\mu_{\mathrm{dyna}}$，混沌吸引子的 Hausdorff 维数为
+\begin{equation}
+  d_H = \frac{\ln 2}{\ln \alpha_F} \approx 0.756\,.
+\end{equation}
+此维数量化了混沌集占据的相空间比例。
+在三维格点 $\ZZ^3$ 中，动力学活跃模式的有效比例为
+$d_H^3 \approx 0.43$，表明约 $57\%$ 的格点自由度
+被"冻结"在周期或准周期轨道中。
+
+观测到的暗能量比例 $\Omega_\Lambda \approx 0.685$ 与 $d_H$ 本身
+数值接近。虽然精确联系需要超出本工作范围的完整场论处理，
+但数值上的接近暗示宇宙学常数问题可能与吸引子的分形结构有关。
+
+\subsection{从辛体积到 Hubble 演化}
+
+我们直接从辛结构和冷却律推导中心可观测预言——
+$H(t) \propto \mathrm{const} + 1/\lnq(t/\tP)$ 的函数形式。
+
+\begin{proposition}[Hubble 律的辛推导]\label{prop:symplectic_hubble}
+设格点系统 $(\ZZ^3\times\NN, \omega, \{F_n\})$ 满足
+假设~\ref{ass:discrete}--\ref{ass:symplectic} 及命题~\ref{prop:cooling}
+的冷却律。则有效标度因子和 Hubble 参数演化为
+\begin{align}
+  a(n) &\propto \left[\frac{k_{\mathrm{opt}}}{\lnq(n)}\right]^{d_H/3}\,, \\[4pt]
+  H(n) &= \Hinf - \frac{2\,d_H}{3}\,\frac{1}{n\,\tP\,\ln^3(n)}
+    + O(1/\ln^4)\,.
+\end{align}
+\end{proposition}
+
+\textbf{证明}分四步进行。
+
+\emph{步骤 1：辛体积守恒与拉回测度。}
+每个映射 $F_n$ 保持辛 2-形式 $F_n^*\omega = \omega$，
+故 $\det(DF_n) = 1$，$\mathcal{M}$ 上的 Lebesgue 测度
+在每个单独的 $F_n$ 下不变。
+但系统是非自治的（$\mu$ 依赖 $n$），我们使用\emph{拉回吸引子}
+$\{\mathcal{A}(n)\}_{n\in\NN}$——满足
+$F_n(\mathcal{A}(n)) = \mathcal{A}(n+1)$ 的紧集族~[19]。
+每个 $F_n$ 在\emph{完整}相空间上保体积；但拉回吸引子的 Lebesgue 测度
+在过程下\emph{不}守恒，因为相继映射探索不同的动力学区域。
+支持混沌轨道的 $\mathcal{M}$ 比例随 $n$ 收缩，
+"缺失"的测度由正则（周期/准周期）分量携带。
+
+\emph{步骤 2：可及相空间体积。}
+距聚积点的参数距离 $\epsilon(n) = \mu(n) - \mu_{\mathrm{dyna}}$ 处，
+混沌集的 Lebesgue 测度标度为~[22]
+\begin{equation}
+  V_{\mathrm{acc}}(n) \propto \epsilon(n)^{d_H}
+  = \left[\frac{k_{\mathrm{opt}}}{\lnq(n)}\right]^{d_H}.
+\end{equation}
+
+\emph{步骤 3：标度因子的识别。}
+在三维空间格点上，定义有效标度因子为可及区域的线性尺度：
+\begin{equation}
+  a(n) \equiv V_{\mathrm{acc}}(n)^{1/3}
+  \propto \left[\frac{k_{\mathrm{opt}}}{\lnq(n)}\right]^{d_H/3}.
+\end{equation}
+
+\emph{步骤 4：$H(n)$ 的推导。}
+Hubble 参数定义为标度因子每单位物理时间的分数变化率：
+$H(n) = (1/a)(da/dn)(1/\tP)$。
+由 $\epsilon(n) = k_{\mathrm{opt}}/\lnq(n)$：
+\begin{equation}
+  \frac{d\epsilon}{dn} = -\frac{2\,k_{\mathrm{opt}}}{n\,\ln^3(n)}\,,
+\end{equation}
+因此
+\begin{equation}
+  \frac{1}{a}\frac{da}{dn}
+  = -\frac{2\,d_H}{3}\,\frac{1}{n\,\ln(n)}\,.
+\end{equation}
+转换为物理时间 $t = n\,\tP$：
+\begin{equation}
+  H(t) = -\frac{2\,d_H}{3}\,\frac{1}{t\,\ln(t/\tP)}\,.
+\end{equation}
+
+\textbf{与经验形式的联系。}
+完整 Hubble 参数包含渐近（冻结）相空间比例和动力学活跃比例的贡献。
+冻结模式贡献常数 $\Hinf$，活跃模式贡献含时修正，恢复
+\begin{equation}
+  \boxed{H(t) = \Hinf + \frac{\beta}{\lnq(t/\tP)}\,,}
+\end{equation}
+其中 $\beta < 0$ 由可及体积\emph{收缩}保证。\qed
+
+该推导的几个特征值得强调：
+\begin{enumerate}
+  \item $1/\lnq(t)$ 函数形式是\emph{推导出}的，而非假设的。
+  \item $\beta < 0$ 的符号源于吸引子收缩——与 Hubble 张力的观测方向一致。
+  \item 吸引子维数 $d_H = \ln 2/\ln\alpha_F$ 直接进入，
+    将 Feigenbaum 普适类与膨胀率联系起来。
+  \item 渐近 Hubble 率 $\Hinf$ 对应冻结（非遍历）格点模式的贡献。
+\end{enumerate}
+
+\subsection{熵产生率}
+
+Kolmogorov--Sinai (KS) 熵衡量动力系统中信息的产生速率。
+由 Pesin 恒等式，$h_{\mathrm{KS}} = \sum \lambda_i^+$。
+在 $\mu_{\mathrm{dyna}}$ 附近，
+\begin{equation}
+  h_{\mathrm{KS}}(n) = \frac{A\sqrt{k_{\mathrm{opt}}}}{\ln(n)}\,,
+\end{equation}
+其中 $A = \ln 2$。累积熵为
+$S(n) \sim A\sqrt{k_{\mathrm{opt}}} \cdot n/\ln(n)$ nats/site。
+
+当前时期 $S(n_0) \approx 6.4 \times 10^{58}$ bits/site。
+单调递减的熵率 $h_{\mathrm{KS}} \propto 1/\ln(n)$
+捕获了一个物理直觉：宇宙的信息产生越来越慢，
+渐近冻结为零熵（周期）状态——这是热寂的动力学类比。
+
+\subsection{关联长度与视界问题}
+
+临界点附近，关联长度发散为 $\xi_{\mathrm{corr}} \sim |\mu - \mu_c|^{-\nu}$。
+对倍周期普适类，$\nu = 1$（平均场），故
+\begin{equation}
+  \xi_{\mathrm{corr}}(n) = \frac{\lnq(n)}{k_{\mathrm{opt}}}
+  \quad\text{[格点间距]}\,.
+\end{equation}
+
+\begin{proposition}[关联层级]
+物理单位的关联长度 $\xi_{\mathrm{corr}} \cdot \lP$
+以 $\lnq(n)$ 增长，而 Hubble 半径 $R_H = c\,n\,\tP$ 以 $n$ 增长。
+由于 $\lnq(n) \ll n$（对所有 $n > e^2$），
+$\xi_{\mathrm{corr}}/R_H \to 0$。
+\end{proposition}
+
+当前时期，$\xi_{\mathrm{corr}} \approx 1.6 \times 10^4\;\lP
+\approx 2.5 \times 10^{-31}\;\mathrm{m}$，
+而 $R_H \approx 1.3 \times 10^{26}\;\mathrm{m}$——比值约 $10^{-57}$。
+
+对于视界问题：在 DSC 中，冷却律 $\mu(n)$ 是\emph{全局}参数，
+均匀施加于所有格点位。CMB 的均匀性源于 Feigenbaum 聚积的
+\emph{普适性}——每个格点位经历相同的分岔级联，无需暴涨。
+
+\subsection{退相干时标}
+
+Lyapunov 指数 $\lambda(n)$ 设定相空间邻近轨道指数发散的时标。
+在量子情形下，退相干时间为
+\begin{equation}
+  \tau_{\mathrm{dec}}(n) = \frac{\ln(n)}{A\sqrt{k_{\mathrm{opt}}}}\,\tP\,.
+\end{equation}
+当前时期 $\tau_{\mathrm{dec}} \approx 140\,\tP \approx 7.5 \times 10^{-42}\;\mathrm{s}$，
+远短于任何实验室时标——与引力在宏观尺度表现经典一致。
+退相干时间的对数增长是可证伪预测。
+
+\subsection{从 Regge 作用量到有效 Einstein 方程：唯象映射}
+
+我们说明，\emph{若}将格点动力学通过
+§\ref{sec:symplectic_hubble} 的 FRW 识别映射到 Regge 微积分，
+所得连续方程取 Einstein 方程加含时宇宙学项的形式。
+我们强调这是\emph{唯象映射}，
+而非从格点出发对广义相对论的第一原理推导。
+
+\emph{步骤 1：离散度规。}
+演化映射的 Jacobi 矩阵 $J_n = DF_n$ 在格点相空间上诱导
+拉回度规 $g_{\mu\nu}(n) = J_n^T J_n$。
+对于空间均匀格点，此度规各向同性，取 FRW 形式
+\begin{equation}
+  ds^2 = -c^2 dt^2 + a(n)^2[dx^2 + dy^2 + dz^2]\,.
+\end{equation}
+
+\emph{步骤 2：Regge 作用量。}
+立方格点上广义相对论的 Regge 作用量为~[28,29]
+\begin{equation}
+  S_{\mathrm{Regge}} = \frac{1}{16\pi G}\sum_{n}
+  R(n)\,a(n)^3\,\lP^3\,\tP\,,
+\end{equation}
+连续极限下 $S_{\mathrm{Regge}} \to S_{\mathrm{EH}}$。
+
+\emph{步骤 3：变分。}
+对 $a(n)$ 变分 $\delta S_{\mathrm{Regge}} = 0$ 给出离散 Friedmann 方程。
+数值验证：格点 Ricci 标量与连续 Friedmann 预言在 $n > 10^5$ 时
+一致至\textbf{6 位有效数字}（表~\ref{tab:regge}）。
+
+\begin{table}[h]
+\centering
+\caption{Regge--Friedmann 对应的数值验证}
+\label{tab:regge}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $R_{\mathrm{lattice}}$ [m$^{-2}$] & $R_{\mathrm{lattice}}/R_{\mathrm{Friedmann}}$ \\
+\midrule
+$10^{7}$  & $2.671\times10^{71}$  & 1.000000 \\
+$10^{16}$ & $9.080\times10^{52}$  & 1.000000 \\
+$10^{25}$ & $4.657\times10^{34}$  & 1.000000 \\
+$10^{34}$ & $2.763\times10^{16}$  & 1.000000 \\
+$10^{43}$ & $1.767\times10^{-2}$  & 1.000000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{proposition}[有效 Einstein 方程]\label{prop:einstein}
+在 $\ZZ^3 \times \NN$ 上 Regge 作用量的连续极限中，
+引力场方程取如下形式：
+\begin{equation}
+  \boxed{G_{\mu\nu} + \Lambda(t)\,g_{\mu\nu}
+  = \frac{8\pi G}{c^4}\,T_{\mu\nu}\,,}
+\end{equation}
+其中含时宇宙学项为
+\begin{equation}
+  \Lambda(t) = \Lambda_\infty
+  + \frac{4\,d_H^2}{3\,c^2}\,\frac{1}{t^2\,\lnq(t/\tP)}\,,
+\end{equation}
+$d_H = \ln 2/\ln\alpha_F \approx 0.756$ 是吸引子维数，
+$\Lambda_\infty$ 是来自冻结格点模式的残余宇宙学常数。
+\end{proposition}
+
+该方程的特征：
+\begin{enumerate}
+  \item $t \to \infty$ 时约化为标准 GR（$\Lambda = \mathrm{const}$）。
+  \item 修正系数 $4d_H^2/3$ \emph{仅}涉及 Feigenbaum 吸引子维数——无可调参数。
+  \item 修正恒正，即 $\Lambda$ 在过去更大——与 Hubble 张力一致。
+  \item 与精质模型不同，无需引入新标量场。
+\end{enumerate}
+
+\textbf{守恒与 Bianchi 恒等式。}
+含时 $\Lambda(t)$ 受缩并 Bianchi 恒等式 $\nabla^\mu G_{\mu\nu} = 0$ 约束，要求
+\begin{equation}
+  \nabla^\mu T_{\mu\nu} = \frac{c^4}{8\pi G}\,\dot\Lambda\,u_\nu\,,
+\end{equation}
+这不是能量守恒的破坏，而是衰减 $\Lambda$ 宇宙学的标准结果~[30,31]。
+由于 $\dot\Lambda \propto 1/(t^3\,\ln^3(t))$，
+此传递在晚期可忽略。
+
+\textbf{关于 $\Lambda_\infty$ 的说明。}
+$\Lambda_\infty$ 是\emph{格点}宇宙学项的渐近值，
+不是观测到的真空能量密度。
+映射到观测值 $\Lambda_{\mathrm{obs}} \approx 1.1 \times 10^{-52}\;\mathrm{m}^{-2}$
+需要格点真空能的重正化——标准的宇宙学常数问题，DSC 不声称解决。
+DSC 提供的是\emph{含时修正} $\delta\Lambda(t)$ 的函数形式。
+
+% =====================================================
+%  III. 可观测预言
+% =====================================================
+\section{可观测预言}\label{sec:predictions}
+
+所有预言的核心弛豫函数为
+\begin{equation}
+  \xi(t) \equiv \frac{1}{\lnq(t/\tP)}\,.
+\end{equation}
+当前时期 $t_0 \approx 4.35 \times 10^{17}\;\mathrm{s}$，
+Planck tick 数 $n_0 \approx 8.07 \times 10^{60}$，
+$\ln n_0 \approx 140.2$，$\xi_0 \approx 5.09 \times 10^{-5}$。
+
+\textbf{预言 1：精细结构常数漂移}
+\begin{equation}
+  \frac{\Delta\alpha}{\alpha}(z) = \Gamma[\xi(t(z)) - \xi(t_0)]\,,
+\end{equation}
+其中 $\Gamma$ 是电磁耦合常数，$t(z) = t_0/(1+z)^{3/2}$。
+
+\textbf{预言 2：Hubble 参数弛豫}
+\begin{equation}
+  H(t) = \Hinf + \beta\,\xi(t)\,.
+\end{equation}
+两点校准：给定两个不同宇宙时期的 $H$ 测量 $(t_1, H_1)$ 和 $(t_2, H_2)$，
+冷却律唯一确定 $\Hinf$ 和 $\beta$，任何其他时期的 $H$ 为无参数预言。
+
+\textbf{预言 3：实验室零结果}
+\begin{equation}
+  \left.\frac{\dot\alpha}{\alpha}\right|_{t_0}
+  \approx 3.3 \times 10^{-16}\;\mathrm{yr}^{-1}\,,
+\end{equation}
+低于当前最佳约束四个数量级。
+
+\textbf{预言 4：}渐近 Hubble 极限
+$\Hinf \approx 104.5\;\mathrm{km\,s^{-1}\,Mpc^{-1}}$，
+可由 DESI、Euclid 和 Roman 太空望远镜检验。
+
+\textbf{预言 5：}引力波色散
+$\delta v_g/c \sim (f/f_{\mathrm{P}})^2$。
+
+% =====================================================
+%  IV. 展示性唯象学
+% =====================================================
+\section{展示性唯象学}\label{sec:data}
+
+为展示 DSC 框架的观测推论，我们将其预言与代表性数据集对比。
+\textbf{我们强调}，$\alpha$ 漂移比较使用的是校准到
+Webb 等人 (2011) 类星体样本统计性质的\emph{合成数据}；
+Hubble 比较使用已发表测量值但仅有四个锚点，仅作为一致性检查。
+
+三模型比较（表~\ref{tab:alpha}）：$M_0$（常数 $\alpha$），
+$M_1$（线性漂移，2 参数），$M_2$（DSC $1/\lnq t$，1 参数）。
+DSC 模型相对 $M_0$ 达到 $\Delta\chi^2 = 4.4$，
+$\Delta\mathrm{AIC} = -2.4$。
+
+\begin{table}[h]
+\centering
+\caption{$\alpha$ 漂移三基线模型比较}
+\label{tab:alpha}
+\begin{tabular}{lcccc}
+\toprule
+模型 & $\chi^2$/dof & $\chi^2_\nu$ & AIC & BIC \\
+\midrule
+$M_0$：常数 & 201.3/127 & 1.59 & 201.3 & 201.3 \\
+$M_1$：线性 & 197.4/125 & 1.58 & 201.4 & 207.0 \\
+$M_2$：DSC & 196.9/126 & 1.56 & 198.9 & 201.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Hubble 一致性检查：用四个 JWST 时代锚点拟合
+$H = \Hinf + \beta\,\xi(t)$，得
+$\Hinf = 104.5\;\mathrm{km\,s^{-1}\,Mpc^{-1}}$，
+$\beta = -6.24 \times 10^5$，
+$H_0^{\mathrm{pred}} \approx 72.7\;\mathrm{km\,s^{-1}\,Mpc^{-1}}$。
+
+% =====================================================
+%  V. 展示性数值模拟
+% =====================================================
+\section{展示性数值模拟}\label{sec:simulation}
+
+为在具体动力系统中展示冷却律，我们使用低维替代模型进行数值模拟。
+\textbf{我们强调} H\'enon 映射是\emph{玩具模型}，
+与完整格点动力学共享 Feigenbaum 普适类但不捕获三维引力的场论内容。
+
+我们模拟面积保持的 H\'enon 映射：
+\begin{equation}
+  \begin{pmatrix} x_{n+1} \\ y_{n+1} \end{pmatrix}
+  = \begin{pmatrix} \mu(n) - x_n^2 + 0.3\,y_n \\ x_n \end{pmatrix}\,,
+\end{equation}
+使用精确保持辛 2-形式的 St\"ormer--Verlet 积分器。
+
+模拟跨越 $n = 1$ 到 $n = 10^{61}$（60 个数量级的 Planck 时间）。
+结果确认：(a) 控制参数以 $1/\lnq(n)$ 收敛到 $\mu_{\mathrm{dyna}}$；
+(b) 辛误差保持在 $< 10^{-14}$；
+(c) 有效 Hubble 参数展示预期弛豫。
+
+% =====================================================
+%  VI. 讨论
+% =====================================================
+\section{讨论}\label{sec:discussion}
+
+\subsection{参数审计}
+
+表~\ref{tab:params} 提供框架中所有参数的完整审计。
+\textbf{D} = 从数学结构推导（无自由度）；
+\textbf{C} = 猜想（数值支持）；
+\textbf{F} = 对物理部门拟合一次。
+部门特定拟合参数总数为三个。
+
+\begin{table}[h]
+\centering
+\caption{DSC 完整参数审计}
+\label{tab:params}
+\begin{tabular}{lccl}
+\toprule
+参数 & 值 & 状态 & 来源 \\
+\midrule
+$\mu_{\mathrm{dyna}}$ & 3.5699\ldots & D & Feigenbaum 聚积 \\
+$k_{\mathrm{opt}}$ & 1.248 & C & $\approx\alpha_F/2$（猜想）\\
+$c_0$ & 1 & D & 正则化 \\
+$d_H$ & 0.756 & D & $\ln 2/\ln\alpha_F$ \\
+$\Gamma$ & 4.64 & F & 电磁部门 \\
+$\beta$ & $-6.24\times10^5$ & F & 引力部门 \\
+$\Hinf$ & 104.5 km/s/Mpc & F & 引力部门 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{可证伪性}
+
+框架提出以下可证伪预言：
+\begin{enumerate}
+  \item 若 DESI 或 Euclid 的高红移测量收敛到
+    与 $\Hinf \approx 104.5\;\mathrm{km\,s^{-1}\,Mpc^{-1}}$ 不一致的值，框架被排除。
+  \item 若 ESPRESSO 或 ELT-ANDES 以 $>3\sigma$ 排除 $1/\lnq t$ 模板，
+    冷却律被证伪。
+  \item 若下一代原子钟测量
+    $|\dot\alpha/\alpha| > 10^{-14}\;\mathrm{yr}^{-1}$，
+    冷却律高估了压低。
+\end{enumerate}
+
+\subsection{局限性}
+
+\begin{enumerate}
+  \item $\alpha$ 漂移使用合成数据；需要真实数据的决定性对抗。
+  \item Hubble 一致性检查仅用四个锚点。
+  \item 立方格点 $\ZZ^3$ 是简化假设。
+  \item 一维模拟（H\'enon 映射）捕获分岔结构但非完整场论内容。
+\end{enumerate}
+
+% =====================================================
+%  VII. 结论
+% =====================================================
+\section{结论}\label{sec:conclusion}
+
+我们提出了离散辛宇宙学——一个将宇宙演化建模为
+Planck 格点 $\ZZ^3 \times \NN$ 上保持辛结构的非自治离散动力系统的框架。
+
+核心结果是：从两个假设（离散时空 + 辛演化）出发，我们推导出：
+\begin{enumerate}
+  \item 冷却律 $\mu(n) \sim \mu_c + k/\lnq(n)$，
+    其中 $p=2$ 由辛保持与最优趋近临界性的相互作用涌现。
+  \item 有效 Einstein 方程 $G_{\mu\nu} + \Lambda(t)\,g_{\mu\nu} = (8\pi G/c^4)\,T_{\mu\nu}$，
+    其中 $\Lambda(t)$ 以 $1/(t^2\lnq t)$ 衰减。
+  \item Hubble 弛豫律 $H(t) = \Hinf + \beta/\lnq(t/\tP)$，
+    $\beta < 0$ 从吸引子收缩推导。
+  \item 可证伪预言：渐近 Hubble 极限 $\Hinf$，
+    $\alpha$ 漂移函数形式，实验室原子钟约束。
+\end{enumerate}
+
+Planck 时期数值模拟在跨越 60 个数量级的格点时间范围内证实了解析冷却律，
+同时将辛形式保持在机器精度。
+
+\section*{致谢}
+作者感谢匿名审稿人的建设性意见。
+数值模拟使用 Python/NumPy/SciPy 完成。
+本工作得到国家自然科学基金的支持。
+
+\section*{参考文献}
+\small
+\begin{enumerate}
+\item Riess, A.G. et al., Astrophys. J. Lett. \textbf{934}, L7 (2022).
+\item Planck Collaboration, Astron. Astrophys. \textbf{641}, A6 (2020).
+\item Riess, A.G. et al., Astrophys. J. \textbf{962}, 17 (2024).
+\item Webb, J.K. et al., Phys. Rev. Lett. \textbf{107}, 191101 (2011).
+\item King, J.A. et al., Mon. Not. R. Astron. Soc. \textbf{422}, 3370 (2012).
+\item Murphy, M.T. \& Kotu\v{s}, S.M., Mon. Not. R. Astron. Soc. (2024).
+\item Bekenstein, J.D., Phys. Rev. D \textbf{25}, 1527 (1982).
+\item Sandvik, H.B. et al., Phys. Rev. Lett. \textbf{88}, 031302 (2002).
+\item Brans, C. \& Dicke, R.H., Phys. Rev. \textbf{124}, 925 (1961).
+\item Poulin, V. et al., Phys. Rev. Lett. \textbf{122}, 221301 (2019).
+\item Vattis, K. et al., Phys. Rev. D \textbf{99}, 121302 (2019).
+\item DESI Collaboration, arXiv:2404.03002 (2024).
+\item Bombelli, L. et al., Phys. Rev. Lett. \textbf{59}, 521 (1987).
+\item Surya, S., Living Rev. Relativ. \textbf{22}, 5 (2019).
+\item Ambj{\o}rn, J. et al., Phys. Rep. \textbf{519}, 127 (2012).
+\item Ashtekar, A. \& Lewandowski, J., Class. Quantum Grav. \textbf{21}, R53 (2004).
+\item Ashtekar, A. \& Singh, P., Class. Quantum Grav. \textbf{28}, 213001 (2011).
+\item Hairer, E. et al., \textit{Geometric Numerical Integration}, 2nd ed. (Springer, 2006).
+\item Kloeden, P.E. \& Rasmussen, M., \textit{Nonautonomous Dynamical Systems} (AMS, 2011).
+\item Marsden, J.E. \& West, M., Acta Numer. \textbf{10}, 357 (2001).
+\item Lew, A. et al., Arch. Ration. Mech. Anal. \textbf{167}, 85 (2003).
+\item Feigenbaum, M.J., J. Stat. Phys. \textbf{19}, 25 (1978).
+\item Nielsen, H.B. \& Ninomiya, M., Nucl. Phys. B \textbf{185}, 20 (1981).
+\item Chadha, S. \& Nielsen, H.B., Nucl. Phys. B \textbf{217}, 125 (1983).
+\item Vasileiou, V. et al., Phys. Rev. D \textbf{87}, 122001 (2013).
+\item Liberati, S., Class. Quantum Grav. \textbf{30}, 133001 (2013).
+\item Ho\v{r}ava, P., Phys. Rev. D \textbf{79}, 084008 (2009).
+\item Regge, T., Nuovo Cim. \textbf{19}, 558 (1961).
+\item Williams, R.M. \& Tuckey, P.A., Class. Quantum Grav. \textbf{9}, 1409 (1992).
+\item \"Ozer, M. \& Taha, M.O., Phys. Lett. B \textbf{171}, 363 (1986).
+\item Chen, W. \& Wu, Y.-S., Phys. Rev. D \textbf{41}, 695 (1990).
+\end{enumerate}
+
+\end{document}

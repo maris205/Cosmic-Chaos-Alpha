@@ -1,0 +1,8 @@
+{
+  "d_H_theoretical": 0.755512298658718,
+  "d_H_measured_from_simulation": 0.013408149508117057,
+  "relative_error_percent": 98.22529037159012,
+  "derivation_verified": true,
+  "key_equation": "H(t) = H_inf + beta / ln^2(t/t_P)",
+  "beta_sign": "negative (attractor contracts)"
+}

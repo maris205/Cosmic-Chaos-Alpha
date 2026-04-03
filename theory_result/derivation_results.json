@@ -1,0 +1,18 @@
+{
+  "k_opt_vs_alphaF_over_2": {
+    "k_opt": 1.248,
+    "alpha_F_over_2": 1.251453937547946,
+    "relative_error_percent": 0.2767578163418346
+  },
+  "d_H_attractor": 0.755512298658718,
+  "H0_from_two_point": {
+    "H_inf_derived": 106.28077932911629,
+    "beta_derived": -654439.7633495465,
+    "H0_predicted": 73.00708345003977,
+    "H_DESI_predicted": 72.71180647613528
+  },
+  "xi_ratio": {
+    "xi_0_over_xi_CMB": 0.855787781346223,
+    "description": "Fixed by z_CMB = 1100, no free parameters"
+  },
+  "lyapunov_at_n0": 

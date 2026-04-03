@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(paper-plan)",
+      "Bash(xargs ls:*)",
+      "Bash(find /root/autodl-tmp/paper_r/ -name IDEA_REPORT* -o -name EXPERIMENT_PLAN* -o -name AUTO_REVIEW* -o -name *.tex -o -name *.bib)",
+      "Bash(sort -k2)",
+      "WebSearch",
+      "Bash(ls /root/autodl-tmp/paper_r/*.py)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(dpkg -l texlive-publishers)",
+      "Bash(pip list:*)",
+      "Bash(pdflatex -interaction=nonstopmode dsc_paper.tex)",
+      "Bash(apt-get update:*)",
+      "Bash(apt-get install:*)",
+      "Bash(bibtex dsc_paper)",
+      "Skill(auto-review-loop)",
+      "Bash(dpkg -l texlive-lang-chinese)",
+      "Bash(fc-list :lang=zh)",
+      "Bash(fc-list :lang=zh family)",
+      "Bash(xelatex -interaction=nonstopmode dsc_paper_cn.tex)"
+    ]
+  }
+}
