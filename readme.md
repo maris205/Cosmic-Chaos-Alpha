@@ -42,3 +42,6 @@ This repository contains the Python Jupyter Notebook scripts required to reprodu
 If you use the code, data, or theoretical framework from this repository in your research, please cite the following preprint/dataset:
 
 > wang, . liang . (2026). Cosmological Evolution as a Non-autonomous Dynamical System: Empirical Evidence from the Fine-Structure Constant, Hubble Tension, and Riemann Zeros (v1.0). Zenodo. https://doi.org/10.5281/zenodo.19218674
+
+## 5 Follow-up Research
+- Directory theory_results: Contains theoretical results. Check the readme.md for more info.
